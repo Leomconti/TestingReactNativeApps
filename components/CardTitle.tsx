@@ -12,8 +12,9 @@ const CardTitle = ({ children, style }: CardTitleProps) => {
 
 const styles = StyleSheet.create({
   title: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
+    color: "#333",
   },
 });
 
