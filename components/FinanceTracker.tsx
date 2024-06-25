@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, StyleSheet, Modal, TextInput, TouchableOpacity, Button } from "react-native";
+import { View, Text, ScrollView, StyleSheet, Modal, TextInput } from "react-native";
 import Icon from "react-native-vector-icons/Feather";
 import Card from "@/components/Card";
 import CardContent from "@/components/CardContent";
 import CardHeader from "@/components/CardHeader";
 import CardTitle from "@/components/CardTitle";
-import Progress from "@/components/Progress";
-import CustomButton from "./CustomButton";
+import CustomButton from "@/components/CustomButton";
+import AnimatedProgressBar from "@/components/AnimatedProgressBar";
 
 interface Trip {
   id: number;
@@ -52,18 +52,18 @@ const FinanceTracker = () => {
 
   const getTimeOfDay = (): string => {
     const hour = new Date().getHours();
-    if (hour < 6) return "Dawn";
-    if (hour < 12) return "Morning";
-    if (hour < 18) return "Afternoon";
-    return "Night";
+    if (hour < 6) return "Madrugada";
+    if (hour < 12) return "Manhã";
+    if (hour < 18) return "Tarde";
+    return "Noite";
   };
 
   const getTotalEarnings = (): number => trips.reduce((sum, trip) => sum + trip.earnings, 0);
 
   const buttons = [
-    { title: "Add Gas Payment", type: "gas" },
-    { title: "Track Mileage", type: "mileage" },
-    { title: "Add Trip", type: "trip" },
+    { title: "Adicionar Gasolina", type: "gas" },
+    { title: "Rastrear Kilometragem", type: "mileage" },
+    { title: "Adicionar Viagem", type: "trip" },
   ];
 
   return (
@@ -73,13 +73,13 @@ const FinanceTracker = () => {
       <Card style={styles.largeCard}>
         <CardHeader>
           <CardTitle style={styles.cardTitle}>
-            <Text>💰 Financas</Text>
+            <Text>💰 Finanças</Text>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Text style={styles.contentText}>Total Ganho: ${getTotalEarnings()}</Text>
-          <Text style={styles.contentText}>Gasolina: ${gasPayment}</Text>
-          <Text style={styles.contentText}>Kilometragem: {mileage} miles</Text>
+          <Text style={styles.contentText}>Total Ganho: R${getTotalEarnings()}</Text>
+          <Text style={styles.contentText}>Gasolina: R${gasPayment}</Text>
+          <Text style={styles.contentText}>Kilometragem: {mileage} km</Text>
         </CardContent>
       </Card>
 
@@ -91,31 +91,35 @@ const FinanceTracker = () => {
         </CardHeader>
         <CardContent>
           <View style={styles.goal}>
-            <Text style={styles.contentText}>Diario: ${dailyGoal}</Text>
-            <Progress value={(getTotalEarnings() / dailyGoal) * 100} />
+            <Text style={styles.contentText}>Diário: R${dailyGoal}</Text>
+            <AnimatedProgressBar value={(getTotalEarnings() / dailyGoal) * 100} />
           </View>
           <View style={styles.goal}>
-            <Text style={styles.contentText}>Semanal: ${weeklyGoal}</Text>
-            <Progress value={(getTotalEarnings() / weeklyGoal) * 100} />
+            <Text style={styles.contentText}>Semanal: R${weeklyGoal}</Text>
+            <AnimatedProgressBar value={(getTotalEarnings() / weeklyGoal) * 100} />
           </View>
           <View style={styles.goal}>
-            <Text style={styles.contentText}>Mensal: ${monthlyGoal}</Text>
-            <Progress value={(getTotalEarnings() / monthlyGoal) * 100} />
+            <Text style={styles.contentText}>Mensal: R${monthlyGoal}</Text>
+            <AnimatedProgressBar value={(getTotalEarnings() / monthlyGoal) * 100} />
           </View>
         </CardContent>
       </Card>
 
       <ScrollView horizontal style={styles.buttonContainer}>
         {buttons.map((button, index) => (
-          <TouchableOpacity key={index} style={styles.actionButton} onPress={() => handleButtonPress(button.type)}>
-            <Text style={styles.actionButtonText}>{button.title}</Text>
-          </TouchableOpacity>
+          <CustomButton
+            key={index}
+            title={button.title}
+            onPress={() => handleButtonPress(button.type)}
+            style={styles.actionButton}
+            textStyle={styles.actionButtonText}
+          />
         ))}
       </ScrollView>
 
       <Card>
         <CardHeader>
-          <CardTitle>Recent Trips</CardTitle>
+          <CardTitle>Viagens Recentes</CardTitle>
         </CardHeader>
         <CardContent>
           <View style={styles.trips}>
@@ -124,9 +128,9 @@ const FinanceTracker = () => {
               .reverse()
               .map((trip) => (
                 <View key={trip.id} style={styles.trip}>
-                  <Text style={styles.contentText}>Trip {trip.id}</Text>
+                  <Text style={styles.contentText}>Viagem {trip.id}</Text>
                   <Text style={styles.contentText}>{trip.time}</Text>
-                  <Text style={styles.contentText}>${trip.earnings}</Text>
+                  <Text style={styles.contentText}>R${trip.earnings}</Text>
                   <Text style={styles.contentText}>{trip.timeOfDay}</Text>
                 </View>
               ))}
@@ -144,11 +148,16 @@ const FinanceTracker = () => {
       >
         <View style={styles.modalView}>
           <Text style={styles.modalText}>
-            Enter {modalType === "gas" ? "Gas Payment" : modalType === "mileage" ? "Mileage" : "Trip Earnings"}
+            Inserir{" "}
+            {modalType === "gas"
+              ? "Pagamento de Gasolina"
+              : modalType === "mileage"
+              ? "Kilometragem"
+              : "Ganhos da Viagem"}
           </Text>
           <TextInput style={styles.input} onChangeText={setInputValue} value={inputValue} keyboardType="numeric" />
-          <CustomButton title="Submit" onPress={handleModalSubmit} />
-          <CustomButton title="Cancel" onPress={() => setModalVisible(false)} />
+          <CustomButton title="Enviar" onPress={handleModalSubmit} style={styles.modalButton} />
+          <CustomButton title="Cancelar" onPress={() => setModalVisible(false)} style={styles.modalButton} />
         </View>
       </Modal>
     </ScrollView>
@@ -159,7 +168,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#f1f1f1",
   },
   title: {
     fontSize: 28,
@@ -172,20 +181,26 @@ const styles = StyleSheet.create({
   largeCard: {
     paddingVertical: 30,
     paddingHorizontal: 20,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#ffffff",
     borderRadius: 12,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 5 },
+    marginBottom: 20,
   },
   cardTitle: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 10,
+    color: "#333333",
   },
   icon: {
     marginRight: 10,
   },
   contentText: {
     fontSize: 16,
-    color: "#333",
+    color: "#333333",
     fontFamily: "Inter_400Regular",
   },
   goal: {
@@ -249,6 +264,13 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingHorizontal: 10,
     fontFamily: "Inter_400Regular",
+  },
+  modalButton: {
+    backgroundColor: "#007bff",
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    marginTop: 10,
   },
 });
 
